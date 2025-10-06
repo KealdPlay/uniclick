@@ -31,8 +31,11 @@ export default function RegistroScreen() {
 
   const handleSubmit = () => {
     console.log('Datos del formulario:', formData);
-    // Aquí iría la lógica de registro
-    // router.push('/(tabs)');
+       // Aquí iría la lógica de registro (validación, envío al backend, etc.)
+    router.push({
+      pathname: '/verificacionView',
+      params: { matricula: formData.matricula }
+    });
   };
 
   const handleBack = () => {

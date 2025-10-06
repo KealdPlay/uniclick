@@ -1,6 +1,7 @@
-// app/(tabs)/verificacion.tsx
+// app/verificacionView.tsx
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import {
     ImageBackground,
@@ -14,8 +15,10 @@ import {
 } from 'react-native';
 
 export default function VerificacionScreen() {
+    const { matricula } = useLocalSearchParams();
     const [code, setCode] = useState(['', '', '', '', '']);
-    const [email] = useState('000000@utags.edu.mx'); // Este vendría de la pantalla anterior
+    // Generar el email a partir de la matrícula recibida
+    const [email] = useState(matricula ? `${matricula}@utags.edu.mx` : '000000@utags.edu.mx');
     const inputRefs = useRef<(TextInput | null)[]>([]);
 
     const handleCodeChange = (text: string, index: number) => {
@@ -42,6 +45,8 @@ export default function VerificacionScreen() {
     const handleVerify = () => {
         const fullCode = code.join('');
         console.log('Código ingresado:', fullCode);
+        console.log('Matrícula:', matricula);
+        console.log('Email:', email);
         // Aquí iría la lógica de verificación
         // router.push('/(tabs)');
     };

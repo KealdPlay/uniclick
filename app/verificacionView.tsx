@@ -1,7 +1,7 @@
 // app/verificacionView.tsx
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import {
     ImageBackground,
@@ -48,7 +48,7 @@ export default function VerificacionScreen() {
         console.log('Matrícula:', matricula);
         console.log('Email:', email);
         // Aquí iría la lógica de verificación
-        // router.push('/(tabs)');
+        router.push('/login');
     };
 
     // Componente Glass Container que funciona en web y nativo

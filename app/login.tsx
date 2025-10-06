@@ -100,7 +100,7 @@ export default function LoginScreen() {
                 <TouchableOpacity style={styles.registerButton}>
                   <Text style={styles.registerText}>
                     ¿Nuevo en la plataforma?{' '}
-                    <Link href="/" style={styles.registerHighlight}>
+                    <Link href="/register" style={styles.registerHighlight}>
                       Regístrate
                     </Link>
                   </Text>

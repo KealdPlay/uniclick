@@ -31,12 +31,15 @@ export default function RegistroScreen() {
 
   const handleSubmit = () => {
     console.log('Datos del formulario:', formData);
-    // Aquí iría la lógica de registro
-    // router.push('/(tabs)');
+       // Aquí iría la lógica de registro (validación, envío al backend, etc.)
+    router.push({
+      pathname: '/verificacionView',
+      params: { matricula: formData.matricula }
+    });
   };
 
   const handleBack = () => {
-    router.back();
+    router.push('/login');
   };
 
   // Componente Glass Container que funciona en web y nativo
@@ -48,14 +51,13 @@ export default function RegistroScreen() {
           {children}
         </View>
       );
-    } else {
-      // Para iOS/Android: Usamos BlurView nativo
+    } else if (Platform.OS === 'ios') {
+      // Para iOS: Usamos BlurView nativo (funciona perfecto)
       return (
         <View style={[styles.glassContainer, style]}>
           <BlurView 
-            intensity={Platform.OS === 'ios' ? 80 : 100} 
+            intensity={80} 
             tint="light"
-            experimentalBlurMethod="dimezisBlurView"
             style={styles.glassEffect}
           />
           <View style={styles.glassColor} />
@@ -64,6 +66,30 @@ export default function RegistroScreen() {
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.glassShine}
+          />
+          {children}
+        </View>
+      );
+    } else {
+      // Para Android: Sin blur, efecto glassmorphism con gradientes y transparencia
+      return (
+        <View style={[styles.glassContainerAndroid, style]}>
+          <LinearGradient
+            colors={[
+              'rgba(255, 255, 255, 0.4)',
+              'rgba(255, 255, 255, 0.25)',
+              'rgba(255, 255, 255, 0.35)',
+            ]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.glassGradient}
+          />
+          <View style={styles.glassOverlay} />
+          <LinearGradient
+            colors={['rgba(255, 255, 255, 0.6)', 'transparent']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.glassShineAndroid}
           />
           {children}
         </View>
@@ -82,7 +108,7 @@ export default function RegistroScreen() {
         source={require('@/assets/images/register_bg.png')}
         style={styles.backgroundImage}
         imageStyle={styles.backgroundImageStyle}
-        blurRadius={Platform.OS === 'web' ? 0 : 2}>
+        blurRadius={Platform.OS === 'web' ? 0 : 3}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.container}>
@@ -130,24 +156,76 @@ export default function RegistroScreen() {
 
                   {showGeneroOptions && (
                     <View style={styles.optionsWrapper}>
-                      <GlassContainer style={styles.optionsGlassContainer}>
-                        <View style={styles.optionsContent}>
-                          {generoOptions.map((option, index) => (
-                            <TouchableOpacity
-                              key={option}
-                              style={[
-                                styles.option,
-                                index < generoOptions.length - 1 && styles.optionBorder
-                              ]}
-                              onPress={() => {
-                                setFormData({ ...formData, genero: option });
-                                setShowGeneroOptions(false);
-                              }}>
-                              <Text style={styles.optionText}>{option}</Text>
-                            </TouchableOpacity>
-                          ))}
+                      {Platform.OS === 'web' ? (
+                        <View style={styles.optionsGlassContainerWeb}>
+                          <View style={styles.optionsContent}>
+                            {generoOptions.map((option, index) => (
+                              <TouchableOpacity
+                                key={option}
+                                style={[
+                                  styles.option,
+                                  index < generoOptions.length - 1 && styles.optionBorder
+                                ]}
+                                onPress={() => {
+                                  setFormData({ ...formData, genero: option });
+                                  setShowGeneroOptions(false);
+                                }}>
+                                <Text style={styles.optionText}>{option}</Text>
+                              </TouchableOpacity>
+                            ))}
+                          </View>
                         </View>
-                      </GlassContainer>
+                      ) : Platform.OS === 'ios' ? (
+                        <View style={styles.optionsGlassContainerIOS}>
+                          <BlurView 
+                            intensity={95} 
+                            tint="light"
+                            style={styles.optionsBlur}
+                          />
+                          <View style={styles.optionsContent}>
+                            {generoOptions.map((option, index) => (
+                              <TouchableOpacity
+                                key={option}
+                                style={[
+                                  styles.option,
+                                  index < generoOptions.length - 1 && styles.optionBorder
+                                ]}
+                                onPress={() => {
+                                  setFormData({ ...formData, genero: option });
+                                  setShowGeneroOptions(false);
+                                }}>
+                                <Text style={styles.optionText}>{option}</Text>
+                              </TouchableOpacity>
+                            ))}
+                          </View>
+                        </View>
+                      ) : (
+                        <View style={styles.optionsGlassContainerAndroid}>
+                          <LinearGradient
+                            colors={[
+                              'rgba(255, 255, 255, 0.75)',
+                              'rgba(245, 245, 245, 0.85)',
+                            ]}
+                            style={styles.optionsGradientAndroid}
+                          />
+                          <View style={styles.optionsContent}>
+                            {generoOptions.map((option, index) => (
+                              <TouchableOpacity
+                                key={option}
+                                style={[
+                                  styles.option,
+                                  index < generoOptions.length - 1 && styles.optionBorder
+                                ]}
+                                onPress={() => {
+                                  setFormData({ ...formData, genero: option });
+                                  setShowGeneroOptions(false);
+                                }}>
+                                <Text style={styles.optionText}>{option}</Text>
+                              </TouchableOpacity>
+                            ))}
+                          </View>
+                        </View>
+                      )}
                     </View>
                   )}
                 </View>
@@ -261,13 +339,29 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 20,
     },
     shadowOpacity: 0.3,
+    shadowRadius: 30,
+    elevation: 20,
+  },
+  // === GLASS CONTAINER ANDROID (sin blur experimental) ===
+  glassContainerAndroid: {
+    borderRadius: 24,
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    backgroundColor: 'rgba(230, 230, 230, 0.6)',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 20,
+    },
+    shadowOpacity: 0.35,
     shadowRadius: 30,
     elevation: 20,
   },
@@ -287,8 +381,8 @@ const styles = StyleSheet.create({
     shadowRadius: 30,
     ...Platform.select({
       web: {
-        backdropFilter: 'blur(7px) saturate(220%)',
-        WebkitBackdropFilter: 'blur(7px) saturate(220%)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
       } as any,
     }),
   },
@@ -315,6 +409,31 @@ const styles = StyleSheet.create({
     height: 300,
     borderRadius: 150,
     opacity: 0.15,
+  },
+  // === GLASS GRADIENT ANDROID ===
+  glassGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  glassOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  glassShineAndroid: {
+    position: 'absolute',
+    top: -80,
+    left: -80,
+    width: 250,
+    height: 250,
+    borderRadius: 125,
+    opacity: 0.25,
   },
   glassContent: {
     padding: 24,
@@ -379,8 +498,75 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 200,
   },
-  optionsGlassContainer: {
+  // === OPTIONS GLASS WEB ===
+  optionsGlassContainerWeb: {
     marginTop: 6,
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+    backgroundColor: 'rgba(255, 255, 255, 0.35)',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    ...Platform.select({
+      web: {
+        backdropFilter: 'blur(30px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+      } as any,
+    }),
+  },
+  // === OPTIONS GLASS iOS ===
+  optionsGlassContainerIOS: {
+    marginTop: 6,
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 20,
+  },
+  // === OPTIONS GLASS ANDROID ===
+  optionsGlassContainerAndroid: {
+    marginTop: 6,
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.6)',
+    backgroundColor: 'rgba(245, 245, 245, 0.85)',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 20,
+  },
+  optionsBlur: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  optionsGradientAndroid: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   optionsContent: {
     position: 'relative',
@@ -391,7 +577,7 @@ const styles = StyleSheet.create({
   },
   optionBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.3)',
+    borderBottomColor: 'rgba(200, 200, 200, 0.4)',
   },
   optionText: {
     fontSize: 15,

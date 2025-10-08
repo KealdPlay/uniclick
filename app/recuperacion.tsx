@@ -1,7 +1,8 @@
-// app/(tabs)/recuperacion.tsx
+// app/recuperacion.tsx
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
     ImageBackground,
@@ -20,7 +21,12 @@ export default function RecuperacionScreen() {
     const handleSendCode = () => {
         console.log('Enviando código a:', email);
         // Aquí iría la lógica para enviar el código
-        // router.push('/verificacion');
+        // Extrae la matrícula del email (la parte antes de @)
+        const matricula = email.split('@')[0];
+        router.push({
+            pathname: '/verificacionView',
+            params: { matricula }
+        });
     };
 
     // Componente Glass Container que funciona en web y nativo
@@ -62,7 +68,10 @@ export default function RecuperacionScreen() {
                 blurRadius={Platform.OS === 'web' ? 0 : 2}>
                 
                 {/* Botón de regreso */}
-                <TouchableOpacity style={styles.backButton}>
+                <TouchableOpacity 
+                    style={styles.backButton}
+                    onPress={() => router.push('/login')}
+                >
                     <Ionicons name="chevron-back" size={32} color="#fff" />
                 </TouchableOpacity>
 
@@ -146,7 +155,6 @@ const styles = StyleSheet.create({
         padding: 24,
         paddingHorizontal: 32,
     },
-    // === GLASS CONTAINER NATIVO (iOS/Android) ===
     glassContainer: {
         borderRadius: 24,
         overflow: 'hidden',
@@ -162,7 +170,6 @@ const styles = StyleSheet.create({
         shadowRadius: 30,
         elevation: 20,
     },
-    // === GLASS CONTAINER WEB (con backdrop-filter CSS) ===
     glassContainerWeb: {
         borderRadius: 24,
         overflow: 'hidden',

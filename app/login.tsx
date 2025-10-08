@@ -1,7 +1,7 @@
 // app/login.tsx
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Link } from 'expo-router'; // Importa Link
+import { Link, router } from 'expo-router';
 import React, { useState } from 'react';
 
 import {
@@ -48,7 +48,7 @@ export default function LoginScreen() {
   return (
     <View style={styles.mainContainer}>
       <ImageBackground
-        source={require('@/assets/images/register_bg.png')} // usa tu imagen de fondo con las palmeras
+        source={require('@/assets/images/register_bg.png')}
         style={styles.backgroundImage}
         imageStyle={styles.backgroundImageStyle}
         blurRadius={Platform.OS === 'web' ? 0 : 2}
@@ -90,7 +90,10 @@ export default function LoginScreen() {
                   />
                 </View>
 
-                <TouchableOpacity style={styles.forgotButton}>
+                <TouchableOpacity 
+                  style={styles.forgotButton}
+                  onPress={() => router.push('/recuperacion')}
+                >
                   <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
                 </TouchableOpacity>
 
@@ -145,7 +148,6 @@ const styles = StyleSheet.create({
     padding: 24,
     paddingHorizontal: 32,
   },
-  // === Glass Effect ===
   glassContainer: {
     borderRadius: 24,
     overflow: 'hidden',
@@ -257,5 +259,5 @@ const styles = StyleSheet.create({
   },
   registerHighlight: {
     fontWeight: 'bold',
-  },
+  },
 });

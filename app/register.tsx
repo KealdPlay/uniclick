@@ -1,4 +1,5 @@
 // app/(tabs)/index.tsx
+import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
@@ -99,16 +100,17 @@ export default function RegistroScreen() {
 
   return (
     <View style={styles.mainContainer}>
-      {/* Botón de regreso */}
-      <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-        <Text style={styles.backButtonText}>‹</Text>
-      </TouchableOpacity>
-
       <ImageBackground
         source={require('@/assets/images/register_bg.png')}
         style={styles.backgroundImage}
         imageStyle={styles.backgroundImageStyle}
         blurRadius={Platform.OS === 'web' ? 0 : 3}>
+        
+        {/* Botón de regreso */}
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <Ionicons name="chevron-back" size={32} color="#fff" />
+        </TouchableOpacity>
+
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.container}>
@@ -309,29 +311,13 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: 60,
-    left: 24,
+    top: 40,
+    left: 20,
+    zIndex: 100,
     width: 44,
     height: 44,
-    borderRadius: 10,
-    backgroundColor: 'rgba(80, 120, 120, 0.85)',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  backButtonText: {
-    fontSize: 36,
-    color: '#FFF',
-    fontWeight: '300',
-    marginTop: -6,
   },
   // === GLASS CONTAINER NATIVO (iOS/Android) ===
   glassContainer: {

@@ -1,4 +1,4 @@
-// app/(tabs)/index.tsx
+// app/register.tsx
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';

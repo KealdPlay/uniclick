@@ -97,7 +97,9 @@ export default function LoginScreen() {
                   <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.submitButton}>
+                <TouchableOpacity style={styles.submitButton}
+                onPress={() => router.push('../(tabs)/home')}
+                >
                   <Text style={styles.submitButtonText}>Continuar</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.registerButton}>

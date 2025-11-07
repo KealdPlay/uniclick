@@ -3,18 +3,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    Image,
-    RefreshControl,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Image,
+  RefreshControl,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
-// ============ TIPOS ============
 interface Product {
   id: number;
   name: string;
@@ -24,7 +23,6 @@ interface Product {
   image: any; // En producción: string (URL)
 }
 
-// ============ COMPONENTE PRODUCTO ============
 const ProductCard = ({ product, onPress }: { product: Product; onPress: () => void }) => (
   <TouchableOpacity 
     style={styles.productCard}
@@ -52,14 +50,13 @@ const ProductCard = ({ product, onPress }: { product: Product; onPress: () => vo
   </TouchableOpacity>
 );
 
-// ============ COMPONENTE PRINCIPAL ============
 export default function HomeScreen() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Simular carga de productos (reemplazar con tu API)
+  
   const fetchProducts = async (isRefresh = false) => {
     try {
       if (isRefresh) {
@@ -69,10 +66,10 @@ export default function HomeScreen() {
       }
       setError(null);
 
-      // Simular delay de red
+      
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Mock data - REEMPLAZAR CON: const response = await fetch('tu-api/productos')
+      
       const mockProducts: Product[] = [
         {
           id: 1,
@@ -115,14 +112,13 @@ export default function HomeScreen() {
   }, []);
 
   const handleProductPress = (productId: number) => {
-    // Navegar a detalle del producto
+    
     console.log('Producto seleccionado:', productId);
     // router.push(`/producto/${productId}`);
   };
 
   const handleMenuPress = () => {
     console.log('Abrir menú');
-    // Implementar drawer o modal de menú
   };
 
   const handleSearchPress = () => {
@@ -139,7 +135,6 @@ export default function HomeScreen() {
     router.replace('/(login)/login');
   };
 
-  // ============ ESTADOS DE CARGA/ERROR ============
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -174,7 +169,7 @@ export default function HomeScreen() {
     );
   }
 
-  // ============ RENDER PRINCIPAL ============
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -227,7 +222,7 @@ export default function HomeScreen() {
   );
 }
 
-// ============ COMPONENTES AUXILIARES ============
+
 const LogoHeader = () => (
   <View style={styles.logoContainer}>
     <Text style={styles.logoText}>UNICL</Text>
@@ -266,7 +261,7 @@ const BottomNavigation = ({
   </View>
 );
 
-// ============ ESTILOS ============
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

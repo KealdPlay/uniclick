@@ -1,18 +1,28 @@
 // app/(tabs)/home.tsx - VERSIÓN AVANZADA
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Animated,
+  Dimensions,
   Image,
+  Modal,
+  Platform,
   RefreshControl,
   SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from 'react-native';
+
+const { width } = Dimensions.get('window');
+
 
 interface Product {
   id: number;
@@ -24,13 +34,13 @@ interface Product {
 }
 
 const ProductCard = ({ product, onPress }: { product: Product; onPress: () => void }) => (
-  <TouchableOpacity 
+  <TouchableOpacity
     style={styles.productCard}
     activeOpacity={0.7}
     onPress={onPress}
   >
     <View style={styles.imageContainer}>
-      <Image 
+      <Image
         source={product.image}
         style={styles.productImage}
         resizeMode="contain"
@@ -55,8 +65,10 @@ export default function HomeScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const slideAnim = React.useRef(new Animated.Value(-width)).current;
 
-  
+
   const fetchProducts = async (isRefresh = false) => {
     try {
       if (isRefresh) {
@@ -66,10 +78,10 @@ export default function HomeScreen() {
       }
       setError(null);
 
-      
+
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      
+
       const mockProducts: Product[] = [
         {
           id: 1,
@@ -95,6 +107,62 @@ export default function HomeScreen() {
           description: 'Lorem Ipsum dolor sit amet, consectetur adipisci tempor incidunt ut labore',
           image: require('@/assets/images/chidas.png'),
         },
+        {
+          id: 4,
+          name: 'Chidas',
+          author: 'Miguel',
+          price: 16,
+          description: 'Lorem Ipsum dolor sit amet, consectetur adipisci tempor incidunt ut labore',
+          image: require('@/assets/images/chidas.png'),
+        },
+        {
+          id: 5,
+          name: 'Chidas',
+          author: 'Miguel',
+          price: 16,
+          description: 'Lorem Ipsum dolor sit amet, consectetur adipisci tempor incidunt ut labore',
+          image: require('@/assets/images/chidas.png'),
+        },
+        {
+          id: 6,
+          name: 'Chidas',
+          author: 'Miguel',
+          price: 16,
+          description: 'Lorem Ipsum dolor sit amet, consectetur adipisci tempor incidunt ut labore',
+          image: require('@/assets/images/chidas.png'),
+        },
+        {
+          id: 7,
+          name: 'Chidas',
+          author: 'Miguel',
+          price: 16,
+          description: 'Lorem Ipsum dolor sit amet, consectetur adipisci tempor incidunt ut labore',
+          image: require('@/assets/images/chidas.png'),
+        },
+        {
+          id: 8,
+          name: 'Chidas',
+          author: 'Miguel',
+          price: 16,
+          description: 'Lorem Ipsum dolor sit amet, consectetur adipisci tempor incidunt ut labore',
+          image: require('@/assets/images/chidas.png'),
+        },
+        {
+          id: 9,
+          name: 'Chidas',
+          author: 'Miguel',
+          price: 16,
+          description: 'Lorem Ipsum dolor sit amet, consectetur adipisci tempor incidunt ut labore',
+          image: require('@/assets/images/chidas.png'),
+        },
+        {
+          id: 10,
+          name: 'Chidas',
+          author: 'Miguel',
+          price: 16,
+          description: 'Lorem Ipsum dolor sit amet, consectetur adipisci tempor incidunt ut labore',
+          image: require('@/assets/images/chidas.png'),
+        }
       ];
 
       setProducts(mockProducts);
@@ -112,14 +180,28 @@ export default function HomeScreen() {
   }, []);
 
   const handleProductPress = (productId: number) => {
-    
+
     console.log('Producto seleccionado:', productId);
     // router.push(`/producto/${productId}`);
   };
 
   const handleMenuPress = () => {
-    console.log('Abrir menú');
+    setIsMenuVisible(true);
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
   };
+
+  const closeMenu = () => {
+    Animated.timing(slideAnim, {
+      toValue: -width,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => setIsMenuVisible(false));
+  };
+
 
   const handleSearchPress = () => {
     console.log('Abrir búsqueda');
@@ -132,8 +214,16 @@ export default function HomeScreen() {
   };
 
   const handleLogout = () => {
+    closeMenu();
     router.replace('/(login)/login');
   };
+
+  const handleSettings = () => {
+    // Aquí se redirecciona
+    console.log('Ir a configuración');
+    closeMenu();
+  };
+
 
   if (isLoading) {
     return (
@@ -158,7 +248,7 @@ export default function HomeScreen() {
         <View style={styles.centerContainer}>
           <Ionicons name="alert-circle-outline" size={64} color="#FF3B30" />
           <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.retryButton}
             onPress={() => fetchProducts()}
           >
@@ -175,16 +265,10 @@ export default function HomeScreen() {
       {/* Header */}
       <View style={styles.header}>
         <LogoHeader />
-        <TouchableOpacity 
-          style={styles.logoutButton}
-          onPress={handleLogout}
-        >
-          <Ionicons name="log-out-outline" size={24} color="#FF3B30" />
-        </TouchableOpacity>
       </View>
 
       {/* Lista de productos con Pull-to-Refresh */}
-      <ScrollView 
+      <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -203,7 +287,7 @@ export default function HomeScreen() {
           </View>
         ) : (
           products.map((product) => (
-            <ProductCard 
+            <ProductCard
               key={product.id}
               product={product}
               onPress={() => handleProductPress(product.id)}
@@ -213,11 +297,54 @@ export default function HomeScreen() {
       </ScrollView>
 
       {/* Barra inferior */}
-      <BottomNavigation 
+      <BottomNavigation
         onMenuPress={handleMenuPress}
         onSearchPress={handleSearchPress}
         onAddPress={handleAddPress}
       />
+
+      {/* Side Menu Modal */}
+      <Modal
+        visible={isMenuVisible}
+        transparent={true}
+        animationType="none"
+        onRequestClose={closeMenu}
+      >
+        <View style={styles.modalOverlay}>
+          <TouchableWithoutFeedback onPress={closeMenu}>
+            <View style={styles.overlayBackground} />
+          </TouchableWithoutFeedback>
+
+          <Animated.View
+            style={[
+              styles.sideMenuContainer,
+              { transform: [{ translateX: slideAnim }] }
+            ]}
+          >
+            <SafeAreaView style={styles.menuSafeArea}>
+              <View style={styles.menuHeader}>
+                <Text style={styles.menuTitle}>Menú</Text>
+                <TouchableOpacity onPress={closeMenu} style={styles.closeButton}>
+                  <Ionicons name="close" size={24} color="#000" />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.menuItems}>
+                <TouchableOpacity style={styles.menuItem} onPress={handleSettings}>
+                  <Ionicons name="settings-outline" size={24} color="#000" />
+                  <Text style={styles.menuItemText}>Configuración</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+                  <Ionicons name="log-out-outline" size={24} color="#FF3B30" />
+                  <Text style={[styles.menuItemText, { color: '#FF3B30' }]}>Cerrar Sesión</Text>
+                </TouchableOpacity>
+              </View>
+            </SafeAreaView>
+          </Animated.View>
+        </View>
+      </Modal>
+
     </SafeAreaView>
   );
 }
@@ -225,39 +352,70 @@ export default function HomeScreen() {
 
 const LogoHeader = () => (
   <View style={styles.logoContainer}>
-    <Text style={styles.logoText}>UNICL</Text>
-    <Ionicons name="hand-left-outline" size={32} color="#000" />
-    <Text style={styles.logoText}>CK</Text>
+    <Image
+      source={require('@/assets/images/uniclick.png')}
+      style={styles.logoImage}
+      resizeMode="contain"
+    />
   </View>
 );
 
-const BottomNavigation = ({ 
-  onMenuPress, 
-  onSearchPress, 
-  onAddPress 
+const GlassContainer = ({ children, style }: any) => {
+  if (Platform.OS === 'web') {
+    return <View style={[styles.glassContainerWeb, style]}>{children}</View>;
+  } else {
+    return (
+      <View style={[styles.glassContainer, style]}>
+        <BlurView
+          intensity={Platform.OS === 'ios' ? 80 : 100}
+          tint="light"
+          experimentalBlurMethod="dimezisBlurView"
+          style={styles.glassEffect}
+        />
+        <View style={styles.glassColor} />
+        <LinearGradient
+          colors={['rgba(255, 255, 255, 0.5)', 'transparent']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.glassShine}
+        />
+        {children}
+      </View>
+    );
+  }
+};
+
+const BottomNavigation = ({
+  onMenuPress,
+  onSearchPress,
+  onAddPress
 }: {
   onMenuPress: () => void;
   onSearchPress: () => void;
   onAddPress: () => void;
 }) => (
-  <View style={styles.bottomNav}>
-    <TouchableOpacity style={styles.navButton} onPress={onMenuPress}>
-      <View style={styles.menuIcon}>
-        <View style={styles.menuLine} />
-        <View style={styles.menuLine} />
-        <View style={styles.menuLine} />
-      </View>
-    </TouchableOpacity>
+  <View style={styles.bottomNavContainer}>
+    <GlassContainer style={styles.bottomNavGlass}>
+      <View style={styles.bottomNavContent}>
+        <TouchableOpacity style={styles.navButton} onPress={onMenuPress}>
+          <View style={styles.menuIcon}>
+            <View style={styles.menuLine} />
+            <View style={styles.menuLine} />
+            <View style={styles.menuLine} />
+          </View>
+        </TouchableOpacity>
 
-    <TouchableOpacity style={styles.navButton} onPress={onSearchPress}>
-      <Ionicons name="search-outline" size={32} color="#000" />
-    </TouchableOpacity>
+        <TouchableOpacity style={styles.navButton} onPress={onSearchPress}>
+          <Ionicons name="search-outline" size={32} color="#000" />
+        </TouchableOpacity>
 
-    <TouchableOpacity style={styles.navButton} onPress={onAddPress}>
-      <View style={styles.addButton}>
-        <Ionicons name="add" size={32} color="#000" />
+        <TouchableOpacity style={styles.navButton} onPress={onAddPress}>
+          <View style={styles.addButton}>
+            <Ionicons name="add" size={32} color="#000" />
+          </View>
+        </TouchableOpacity>
       </View>
-    </TouchableOpacity>
+    </GlassContainer>
   </View>
 );
 
@@ -265,7 +423,10 @@ const BottomNavigation = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#e2e1de',
+  },
+  safeArea: {
+    flex: 1,
   },
   centerContainer: {
     flex: 1,
@@ -279,19 +440,19 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
   },
   logoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
+    height: 40,
+    width: 120,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
   },
-  logoText: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#000',
-    letterSpacing: 2,
+  logoImage: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
   },
   logoutButton: {
     padding: 8,
@@ -301,6 +462,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 20,
+    paddingBottom: 120, // Space for the floating bottom nav
     gap: 20,
   },
   productCard: {
@@ -387,15 +549,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#999',
   },
-  bottomNav: {
+  bottomNavContainer: {
+    position: 'absolute',
+    bottom: 30,
+    left: 20,
+    right: 20,
+    alignItems: 'center',
+  },
+  bottomNavGlass: {
+    width: '100%',
+    borderRadius: 30,
+    overflow: 'hidden',
+  },
+  bottomNavContent: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: 12,
     paddingHorizontal: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
-    backgroundColor: '#fff',
   },
   navButton: {
     padding: 8,
@@ -413,10 +584,112 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    borderWidth: 3,
+    borderWidth: 1,
     borderColor: '#000',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  glassContainer: {
+    borderRadius: 24,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  glassContainerWeb: {
+    borderRadius: 24,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    ...Platform.select({
+      web: {
+        backdropFilter: 'blur(7px) saturate(220%)',
+        WebkitBackdropFilter: 'blur(7px) saturate(220%)',
+      } as any,
+    }),
+  },
+  glassEffect: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
+  },
+  glassColor: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  glassShine: {
+    position: 'absolute',
+    top: -100,
+    left: -100,
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+    opacity: 0.15,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  overlayBackground: {
+    flex: 1,
+    width: '100%',
+  },
+  sideMenuContainer: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    width: width * 0.75,
     backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 2,
+      height: 0,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  menuSafeArea: {
+    flex: 1,
+  },
+  menuHeader: {
+    padding: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  menuTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  closeButton: {
+    padding: 4,
+  },
+  menuItems: {
+    padding: 20,
+    gap: 20,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 12,
+  },
+  menuItemText: {
+    fontSize: 18,
+    fontWeight: '500',
   },
 });

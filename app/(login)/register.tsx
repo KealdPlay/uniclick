@@ -9,12 +9,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
+
+import { styles } from '@/constants/loginStyle';
 
 export default function RegistroScreen() {
   const [formData, setFormData] = useState({
@@ -32,7 +33,7 @@ export default function RegistroScreen() {
 
   const handleSubmit = () => {
     console.log('Datos del formulario:', formData);
-       // Aquí iría la lógica de registro (validación, envío al backend, etc.)
+    // Aquí iría la lógica de registro (validación, envío al backend, etc.)
     router.push({
       pathname: '/verificacionView',
       params: { matricula: formData.matricula }
@@ -56,8 +57,8 @@ export default function RegistroScreen() {
       // Para iOS: Usamos BlurView nativo (funciona perfecto)
       return (
         <View style={[styles.glassContainer, style]}>
-          <BlurView 
-            intensity={80} 
+          <BlurView
+            intensity={80}
             tint="light"
             style={styles.glassEffect}
           />
@@ -105,7 +106,7 @@ export default function RegistroScreen() {
         style={styles.backgroundImage}
         imageStyle={styles.backgroundImageStyle}
         blurRadius={Platform.OS === 'web' ? 0 : 3}>
-        
+
         {/* Botón de regreso */}
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
           <Ionicons name="chevron-back" size={32} color="#fff" />
@@ -179,8 +180,8 @@ export default function RegistroScreen() {
                         </View>
                       ) : Platform.OS === 'ios' ? (
                         <View style={styles.optionsGlassContainerIOS}>
-                          <BlurView 
-                            intensity={95} 
+                          <BlurView
+                            intensity={95}
                             tint="light"
                             style={styles.optionsBlur}
                           />
@@ -278,316 +279,3 @@ export default function RegistroScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  mainContainer: {
-    flex: 1,
-    backgroundColor: '#E8F0F2',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backgroundImage: {
-    width: '100%',
-    maxWidth: 500,
-    height: '95%',
-    maxHeight: 850,
-    justifyContent: 'center',
-    alignItems: 'center',
-    overflow: 'hidden',
-  },
-  backgroundImageStyle: {
-    borderRadius: 24,
-  },
-  container: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0)',
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: 24,
-    paddingHorizontal: 32,
-  },
-  backButton: {
-    position: 'absolute',
-    top: 40,
-    left: 20,
-    zIndex: 100,
-    width: 44,
-    height: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  // === GLASS CONTAINER NATIVO (iOS/Android) ===
-  glassContainer: {
-    borderRadius: 24,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 20,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 30,
-    elevation: 20,
-  },
-  // === GLASS CONTAINER ANDROID (sin blur experimental) ===
-  glassContainerAndroid: {
-    borderRadius: 24,
-    overflow: 'hidden',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
-    backgroundColor: 'rgba(230, 230, 230, 0.6)',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 20,
-    },
-    shadowOpacity: 0.35,
-    shadowRadius: 30,
-    elevation: 20,
-  },
-  // === GLASS CONTAINER WEB (con backdrop-filter CSS) ===
-  glassContainerWeb: {
-    borderRadius: 24,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 20,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 30,
-    ...Platform.select({
-      web: {
-        backdropFilter: 'blur(20px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-      } as any,
-    }),
-  },
-  glassEffect: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  glassColor: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-  },
-  glassShine: {
-    position: 'absolute',
-    top: -100,
-    left: -100,
-    width: 300,
-    height: 300,
-    borderRadius: 150,
-    opacity: 0.15,
-  },
-  // === GLASS GRADIENT ANDROID ===
-  glassGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  glassOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-  },
-  glassShineAndroid: {
-    position: 'absolute',
-    top: -80,
-    left: -80,
-    width: 250,
-    height: 250,
-    borderRadius: 125,
-    opacity: 0.25,
-  },
-  glassContent: {
-    padding: 24,
-    position: 'relative',
-    zIndex: 10,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#000',
-    textAlign: 'center',
-    marginBottom: 6,
-  },
-  subtitle: {
-    fontSize: 15,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  inputContainer: {
-    marginBottom: 14,
-    position: 'relative',
-    zIndex: 1,
-  },
-  inputContainerActive: {
-    zIndex: 100,
-  },
-  input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderRadius: 12,
-    padding: 15,
-    fontSize: 15,
-    color: '#333',
-    borderWidth: 0,
-  },
-  selectButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderRadius: 12,
-    padding: 15,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderWidth: 0,
-  },
-  placeholderText: {
-    fontSize: 15,
-    color: '#999',
-  },
-  selectedText: {
-    fontSize: 15,
-    color: '#000',
-  },
-  chevron: {
-    fontSize: 12,
-    color: '#0066CC',
-    fontWeight: 'bold',
-  },
-  optionsWrapper: {
-    position: 'absolute',
-    top: '100%',
-    left: 0,
-    right: 0,
-    zIndex: 200,
-  },
-  // === OPTIONS GLASS WEB ===
-  optionsGlassContainerWeb: {
-    marginTop: 6,
-    borderRadius: 12,
-    overflow: 'hidden',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
-    backgroundColor: 'rgba(255, 255, 255, 0.35)',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 6,
-    },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    ...Platform.select({
-      web: {
-        backdropFilter: 'blur(30px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(30px) saturate(180%)',
-      } as any,
-    }),
-  },
-  // === OPTIONS GLASS iOS ===
-  optionsGlassContainerIOS: {
-    marginTop: 6,
-    borderRadius: 12,
-    overflow: 'hidden',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 6,
-    },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 20,
-  },
-  // === OPTIONS GLASS ANDROID ===
-  optionsGlassContainerAndroid: {
-    marginTop: 6,
-    borderRadius: 12,
-    overflow: 'hidden',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.6)',
-    backgroundColor: 'rgba(245, 245, 245, 0.85)',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 6,
-    },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 20,
-  },
-  optionsBlur: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  optionsGradientAndroid: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  optionsContent: {
-    position: 'relative',
-    zIndex: 10,
-  },
-  option: {
-    padding: 15,
-  },
-  optionBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(200, 200, 200, 0.4)',
-  },
-  optionText: {
-    fontSize: 15,
-    color: '#000',
-  },
-  submitButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    borderRadius: 12,
-    padding: 15,
-    alignItems: 'center',
-    marginTop: 8,
-    borderWidth: 0,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  submitButtonText: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#000',
-  },
-});

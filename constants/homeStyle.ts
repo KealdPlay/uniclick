@@ -1,0 +1,160 @@
+import { StyleSheet } from 'react-native';
+
+export const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+    },
+    centerContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    header: {
+        paddingVertical: 16,
+        paddingHorizontal: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: '#e0e0e0',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    logoContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+    logoText: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: '#000',
+        letterSpacing: 2,
+    },
+    logoutButton: {
+        padding: 8,
+    },
+    scrollView: {
+        flex: 1,
+    },
+    scrollContent: {
+        padding: 20,
+        gap: 20,
+    },
+    productCard: {
+        backgroundColor: '#F5F5F7',
+        borderRadius: 20,
+        padding: 24,
+        flexDirection: 'row',
+        gap: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        elevation: 2,
+    },
+    imageContainer: {
+        width: 140,
+        height: 140,
+        backgroundColor: '#fff',
+        borderRadius: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 10,
+    },
+    productImage: {
+        width: '100%',
+        height: '100%',
+    },
+    productInfo: {
+        flex: 1,
+        justifyContent: 'center',
+    },
+    productName: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#000',
+        marginBottom: 4,
+    },
+    productAuthor: {
+        fontSize: 14,
+        color: '#666',
+        marginBottom: 8,
+    },
+    productPrice: {
+        fontSize: 22,
+        fontWeight: '600',
+        color: '#000',
+        marginBottom: 12,
+    },
+    productDescription: {
+        fontSize: 14,
+        color: '#666',
+        lineHeight: 20,
+    },
+    loadingText: {
+        marginTop: 16,
+        fontSize: 16,
+        color: '#666',
+    },
+    errorText: {
+        marginTop: 16,
+        fontSize: 16,
+        color: '#666',
+        textAlign: 'center',
+        marginBottom: 20,
+    },
+    retryButton: {
+        backgroundColor: '#000',
+        paddingHorizontal: 24,
+        paddingVertical: 12,
+        borderRadius: 8,
+    },
+    retryButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    emptyContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 60,
+    },
+    emptyText: {
+        marginTop: 16,
+        fontSize: 16,
+        color: '#999',
+    },
+    bottomNav: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        paddingVertical: 16,
+        paddingHorizontal: 20,
+        borderTopWidth: 1,
+        borderTopColor: '#e0e0e0',
+        backgroundColor: '#fff',
+    },
+    navButton: {
+        padding: 8,
+    },
+    menuIcon: {
+        gap: 6,
+    },
+    menuLine: {
+        width: 32,
+        height: 3,
+        backgroundColor: '#000',
+        borderRadius: 2,
+    },
+    addButton: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        borderWidth: 3,
+        borderColor: '#000',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+    },
+});

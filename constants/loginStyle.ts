@@ -1,10 +1,6 @@
-// app/(tabs)/index.tsx
-import {
-    Platform,
-    StyleSheet
-} from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
         backgroundColor: '#E8F0F2',
@@ -35,33 +31,6 @@ const styles = StyleSheet.create({
         padding: 24,
         paddingHorizontal: 32,
     },
-    backButton: {
-        position: 'absolute',
-        top: 60,
-        left: 24,
-        width: 44,
-        height: 44,
-        borderRadius: 10,
-        backgroundColor: 'rgba(80, 120, 120, 0.85)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 20,
-        shadowColor: '#000',
-        shadowOffset: {
-        width: 0,
-        height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
-    },
-    backButtonText: {
-        fontSize: 36,
-        color: '#FFF',
-        fontWeight: '300',
-        marginTop: -6,
-    },
-    // === GLASS CONTAINER NATIVO (iOS/Android) ===
     glassContainer: {
         borderRadius: 24,
         overflow: 'hidden',
@@ -69,15 +38,11 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(255, 255, 255, 0.3)',
         backgroundColor: 'rgba(255, 255, 255, 0.25)',
         shadowColor: '#000',
-        shadowOffset: {
-        width: 0,
-        height: 20,
-        },
+        shadowOffset: { width: 0, height: 20 },
         shadowOpacity: 0.3,
         shadowRadius: 30,
         elevation: 20,
     },
-    // === GLASS CONTAINER WEB (con backdrop-filter CSS) ===
     glassContainerWeb: {
         borderRadius: 24,
         overflow: 'hidden',
@@ -85,32 +50,23 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(255, 255, 255, 0.25)',
         backgroundColor: 'rgba(255, 255, 255, 0.08)',
         shadowColor: '#000',
-        shadowOffset: {
-        width: 0,
-        height: 20,
-        },
+        shadowOffset: { width: 0, height: 20 },
         shadowOpacity: 0.3,
         shadowRadius: 30,
         ...Platform.select({
-        web: {
-            backdropFilter: 'blur(7px) saturate(220%)',
-            WebkitBackdropFilter: 'blur(7px) saturate(220%)',
-        } as any,
+            web: {
+                backdropFilter: 'blur(7px) saturate(220%)',
+                WebkitBackdropFilter: 'blur(7px) saturate(220%)',
+            } as any,
         }),
     },
     glassEffect: {
         position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        top: 0, left: 0, right: 0, bottom: 0,
     },
     glassColor: {
         position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        top: 0, left: 0, right: 0, bottom: 0,
         backgroundColor: 'rgba(255, 255, 255, 0.15)',
     },
     glassShine: {
@@ -123,12 +79,12 @@ const styles = StyleSheet.create({
         opacity: 0.15,
     },
     glassContent: {
-        padding: 24,
+        padding: 28,
         position: 'relative',
         zIndex: 10,
     },
     title: {
-        fontSize: 32,
+        fontSize: 28,
         fontWeight: 'bold',
         color: '#000',
         textAlign: 'center',
@@ -136,17 +92,12 @@ const styles = StyleSheet.create({
     },
     subtitle: {
         fontSize: 15,
-        color: '#666',
+        color: '#555',
         textAlign: 'center',
-        marginBottom: 24,
+        marginBottom: 20,
     },
     inputContainer: {
         marginBottom: 14,
-        position: 'relative',
-        zIndex: 1,
-    },
-    inputContainerActive: {
-        zIndex: 100,
     },
     input: {
         backgroundColor: 'rgba(255, 255, 255, 0.7)',
@@ -154,7 +105,185 @@ const styles = StyleSheet.create({
         padding: 15,
         fontSize: 15,
         color: '#333',
+    },
+    forgotButton: {
+        alignSelf: 'flex-end',
+        marginTop: -4,
+        marginBottom: 20,
+    },
+    forgotText: {
+        fontSize: 13,
+        color: '#444',
+        textDecorationLine: 'underline',
+    },
+    submitButton: {
+        backgroundColor: 'rgba(255, 255, 255, 0.85)',
+        borderRadius: 12,
+        padding: 15,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    submitButtonText: {
+        fontSize: 17,
+        fontWeight: '600',
+        color: '#000',
+    },
+    registerButton: {
+        marginTop: 18,
+        alignItems: 'center',
+    },
+    registerText: {
+        fontSize: 14,
+        color: '#333',
+    },
+    registerHighlight: {
+        fontWeight: 'bold',
+    },
+    backButton: {
+        position: 'absolute',
+        top: 40,
+        left: 20,
+        zIndex: 100,
+        width: 44,
+        height: 44,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    description: {
+        fontSize: 15,
+        color: '#333',
+        textAlign: 'center',
+        marginBottom: 20,
+        lineHeight: 22,
+    },
+    emailInput: {
+        width: '100%',
+        height: 56,
+        backgroundColor: 'rgba(255, 255, 255, 0.85)',
+        borderRadius: 12,
+        fontSize: 16,
+        paddingHorizontal: 16,
+        color: '#000',
         borderWidth: 0,
+        marginBottom: 20,
+    },
+    sendButton: {
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        borderRadius: 12,
+        padding: 16,
+        alignItems: 'center',
+        borderWidth: 0,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    sendButtonText: {
+        fontSize: 17,
+        fontWeight: '600',
+        color: '#000',
+    },
+    content: {
+        flex: 1,
+        justifyContent: 'center',
+        padding: 24,
+        paddingHorizontal: 32,
+    },
+    optionsGlassContainerAndroid: {
+        marginTop: 6,
+        borderRadius: 12,
+        overflow: 'hidden',
+        borderWidth: 1.5,
+        borderColor: 'rgba(255, 255, 255, 0.6)',
+        backgroundColor: 'rgba(245, 245, 245, 0.85)',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 6,
+        },
+        shadowOpacity: 0.4,
+        shadowRadius: 12,
+        elevation: 20,
+    },
+    optionsBlur: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+    },
+    optionsGradientAndroid: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+    },
+    optionsContent: {
+        position: 'relative',
+        zIndex: 10,
+    },
+    option: {
+        padding: 15,
+    },
+    optionBorder: {
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(200, 200, 200, 0.4)',
+    },
+    optionText: {
+        fontSize: 15,
+        color: '#000',
+    },
+    optionsGlassContainerIOS: {
+        marginTop: 6,
+        borderRadius: 12,
+        overflow: 'hidden',
+        borderWidth: 1.5,
+        borderColor: 'rgba(255, 255, 255, 0.5)',
+        backgroundColor: 'rgba(255, 255, 255, 0.25)',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 6,
+        },
+        shadowOpacity: 0.4,
+        shadowRadius: 12,
+        elevation: 20,
+    },
+    glassGradient: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+    },
+    glassOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    },
+    glassShineAndroid: {
+        position: 'absolute',
+        top: -80,
+        left: -80,
+        width: 250,
+        height: 250,
+        borderRadius: 125,
+        opacity: 0.25,
+    },
+    inputContainerActive: {
+        zIndex: 100,
     },
     selectButton: {
         backgroundColor: 'rgba(255, 255, 255, 0.7)',
@@ -169,10 +298,6 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: '#999',
     },
-    selectedText: {
-        fontSize: 15,
-        color: '#000',
-    },
     chevron: {
         fontSize: 12,
         color: '#0066CC',
@@ -185,43 +310,78 @@ const styles = StyleSheet.create({
         right: 0,
         zIndex: 200,
     },
-    optionsGlassContainer: {
+    // === OPTIONS GLASS WEB ===
+    optionsGlassContainerWeb: {
         marginTop: 6,
+        borderRadius: 12,
+        overflow: 'hidden',
+        borderWidth: 1.5,
+        borderColor: 'rgba(255, 255, 255, 0.5)',
+        backgroundColor: 'rgba(255, 255, 255, 0.35)',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 6,
+        },
     },
-    optionsContent: {
-        position: 'relative',
-        zIndex: 10,
+    glassContainerAndroid: {
+        borderRadius: 24,
+        overflow: 'hidden',
+        borderWidth: 1.5,
+        borderColor: 'rgba(255, 255, 255, 0.4)',
+        backgroundColor: 'rgba(230, 230, 230, 0.6)',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 20,
+        },
+        shadowOpacity: 0.35,
+        shadowRadius: 30,
+        elevation: 20,
     },
-    option: {
-        padding: 15,
-    },
-    optionBorder: {
-        borderBottomWidth: 1,
-        borderBottomColor: 'rgba(255, 255, 255, 0.3)',
-    },
-    optionText: {
+    selectedText: {
         fontSize: 15,
         color: '#000',
     },
-    submitButton: {
+    email: {
+        color: '#000',
+        fontWeight: '600',
+    },
+    codeContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: 12,
+        marginBottom: 32,
+    },
+    codeInput: {
+        width: 50,
+        height: 60,
         backgroundColor: 'rgba(255, 255, 255, 0.85)',
         borderRadius: 12,
-        padding: 15,
+        fontSize: 24,
+        fontWeight: '600',
+        textAlign: 'center',
+        color: '#000',
+        borderWidth: 0,
+    },
+    verifyButton: {
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        borderRadius: 12,
+        padding: 16,
         alignItems: 'center',
-        marginTop: 8,
         borderWidth: 0,
         shadowColor: '#000',
         shadowOffset: {
-        width: 0,
-        height: 4,
+            width: 0,
+            height: 4,
         },
         shadowOpacity: 0.15,
         shadowRadius: 8,
         elevation: 4,
     },
-    submitButtonText: {
+    verifyButtonText: {
         fontSize: 17,
         fontWeight: '600',
         color: '#000',
     },
-    });
+}); 

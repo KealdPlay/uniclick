@@ -67,6 +67,7 @@ export default function HomeScreen() {
   const [error, setError] = useState<string | null>(null);
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   const slideAnim = React.useRef(new Animated.Value(-width)).current;
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
 
 
   const fetchProducts = async (isRefresh = false) => {
@@ -187,19 +188,33 @@ export default function HomeScreen() {
 
   const handleMenuPress = () => {
     setIsMenuVisible(true);
-    Animated.timing(slideAnim, {
-      toValue: 0,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
+    Animated.parallel([
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
   const closeMenu = () => {
-    Animated.timing(slideAnim, {
-      toValue: -width,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => setIsMenuVisible(false));
+    Animated.parallel([
+      Animated.timing(slideAnim, {
+        toValue: -width,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start(() => setIsMenuVisible(false));
   };
 
 
@@ -312,7 +327,12 @@ export default function HomeScreen() {
       >
         <View style={styles.modalOverlay}>
           <TouchableWithoutFeedback onPress={closeMenu}>
-            <View style={styles.overlayBackground} />
+            <Animated.View
+              style={[
+                styles.overlayBackground,
+                { opacity: fadeAnim }
+              ]}
+            />
           </TouchableWithoutFeedback>
 
           <Animated.View
@@ -638,11 +658,12 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: 'transparent',
   },
   overlayBackground: {
     flex: 1,
     width: '100%',
+    backgroundColor: 'rgba(0,0,0,0.4)',
   },
   sideMenuContainer: {
     position: 'absolute',

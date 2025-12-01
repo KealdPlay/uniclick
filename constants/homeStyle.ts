@@ -1,9 +1,14 @@
-import { StyleSheet } from 'react-native';
+import { Dimensions, Platform, StyleSheet } from 'react-native';
+
+const { width } = Dimensions.get('window');
 
 export const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: '#e2e1de',
+    },
+    safeArea: {
+        flex: 1,
     },
     centerContainer: {
         flex: 1,
@@ -17,19 +22,19 @@ export const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#e0e0e0',
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         alignItems: 'center',
     },
     logoContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
+        height: 40,
+        width: 120,
+        justifyContent: 'center',
+        alignItems: 'flex-start',
     },
-    logoText: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: '#000',
-        letterSpacing: 2,
+    logoImage: {
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
     },
     logoutButton: {
         padding: 8,
@@ -39,6 +44,7 @@ export const styles = StyleSheet.create({
     },
     scrollContent: {
         padding: 20,
+        paddingBottom: 120, // Space for the floating bottom nav
         gap: 20,
     },
     productCard: {
@@ -125,15 +131,26 @@ export const styles = StyleSheet.create({
         fontSize: 16,
         color: '#999',
     },
-    bottomNav: {
+
+    // Bottom Navigation (Glassmorphism)
+    bottomNavContainer: {
+        position: 'absolute',
+        bottom: 30,
+        left: 20,
+        right: 20,
+        alignItems: 'center',
+    },
+    bottomNavGlass: {
+        width: '100%',
+        borderRadius: 30,
+        overflow: 'hidden',
+    },
+    bottomNavContent: {
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center',
-        paddingVertical: 16,
+        paddingVertical: 12,
         paddingHorizontal: 20,
-        borderTopWidth: 1,
-        borderTopColor: '#e0e0e0',
-        backgroundColor: '#fff',
     },
     navButton: {
         padding: 8,
@@ -151,10 +168,123 @@ export const styles = StyleSheet.create({
         width: 56,
         height: 56,
         borderRadius: 28,
-        borderWidth: 3,
+        borderWidth: 1,
         borderColor: '#000',
         justifyContent: 'center',
         alignItems: 'center',
+    },
+
+    // Glass Container Styles
+    glassContainer: {
+        borderRadius: 24,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.3)',
+        backgroundColor: 'rgba(255, 255, 255, 0.25)',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.2,
+        shadowRadius: 20,
+        elevation: 10,
+    },
+    glassContainerWeb: {
+        borderRadius: 24,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.25)',
+        backgroundColor: 'rgba(255, 255, 255, 0.08)',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.2,
+        shadowRadius: 20,
+        ...Platform.select({
+            web: {
+                backdropFilter: 'blur(7px) saturate(220%)',
+                WebkitBackdropFilter: 'blur(7px) saturate(220%)',
+            } as any,
+        }),
+    },
+    glassEffect: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+    },
+    glassColor: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    },
+    glassShine: {
+        position: 'absolute',
+        top: -100,
+        left: -100,
+        width: 300,
+        height: 300,
+        borderRadius: 150,
+        opacity: 0.15,
+    },
+
+    // Side Menu Modal Styles
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'transparent',
+    },
+    overlayBackground: {
+        flex: 1,
+        width: '100%',
+        backgroundColor: 'rgba(0,0,0,0.4)',
+    },
+    sideMenuContainer: {
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        left: 0,
+        width: width * 0.75,
         backgroundColor: '#fff',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 2,
+            height: 0,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    menuSafeArea: {
+        flex: 1,
+    },
+    menuHeader: {
+        padding: 20,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderBottomWidth: 1,
+        borderBottomColor: '#f0f0f0',
+    },
+    menuTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+    },
+    closeButton: {
+        padding: 4,
+    },
+    menuItems: {
+        padding: 20,
+        gap: 20,
+    },
+    menuItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        paddingVertical: 12,
+    },
+    menuItemText: {
+        fontSize: 18,
+        fontWeight: '500',
     },
 });

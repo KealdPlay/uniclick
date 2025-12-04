@@ -1,10 +1,15 @@
-// app/login.tsx
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, router } from 'expo-router';
 import React, { useState } from 'react';
 
 import {
+  ActivityIndicator // Importamos el Loader
+  ,
+
+
+
+  Alert,
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
@@ -16,33 +21,55 @@ import {
 } from 'react-native';
 
 import { styles } from '@/constants/loginStyle';
+import { api } from '@/services/api'; // Importamos el servicio de API
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('');
+  // Cambiamos 'email' por 'matricula' para ser consistentes con EL backend
+  const [matricula, setMatricula] = useState('');
   const [contrasena, setContrasena] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const GlassContainer = ({ children, style }: any) => {
-    if (Platform.OS === 'web') {
-      return <View style={[styles.glassContainerWeb, style]}>{children}</View>;
-    } else {
-      return (
-        <View style={[styles.glassContainer, style]}>
-          <BlurView
-            intensity={Platform.OS === 'ios' ? 80 : 100}
-            tint="light"
-            experimentalBlurMethod="dimezisBlurView"
-            style={styles.glassEffect}
-          />
-          <View style={styles.glassColor} />
-          <LinearGradient
-            colors={['rgba(255, 255, 255, 0.5)', 'transparent']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.glassShine}
-          />
-          {children}
-        </View>
-      );
+  const handleLogin = async () => {
+    // Validaciones
+    if (!matricula || !contrasena) {
+      if (Platform.OS === 'web') {
+        window.alert("Por favor ingresa tu matrícula y contraseña");
+      } else {
+        Alert.alert("Campos vacíos", "Por favor ingresa tu matrícula y contraseña");
+      }
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      console.log("Intentando login con:", matricula);
+      
+      // Llamamos a la api servicio de login
+      const usuario = await api.usuarios.login(matricula, contrasena);
+
+      if (usuario) {
+        // LOGIN EXITOSO
+        console.log("Login exitoso, bienvenido:", usuario.nombre);
+        
+        // Aquí podrías guardar el usuario en AsyncStorage si quisieras mantener sesión
+        // Por ahora, solo navegamos al Home
+        router.replace('/(tabs)/home'); 
+
+      } else {
+        // LOGIN FALLIDO
+        if (Platform.OS === 'web') {
+          window.alert("Credenciales incorrectas. Revisa tu matrícula o contraseña.");
+        } else {
+          Alert.alert("Error", "Matrícula o contraseña incorrectas.");
+        }
+      }
+
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error de conexión", "No pudimos conectar con el servidor.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -71,11 +98,12 @@ export default function LoginScreen() {
                 <View style={styles.inputContainer}>
                   <TextInput
                     style={styles.input}
-                    placeholder="000000@utags.edu.mx"
+                    // Ajustamos el placeholder para que sepan que es la matrícula
+                    placeholder="Matrícula (Ej. 000000)" 
                     placeholderTextColor="#999"
-                    value={email}
-                    onChangeText={setEmail}
-                    keyboardType="email-address"
+                    value={matricula}
+                    onChangeText={setMatricula}
+                    keyboardType="default"
                     autoCapitalize="none"
                   />
                 </View>
@@ -91,18 +119,25 @@ export default function LoginScreen() {
                   />
                 </View>
 
-                <TouchableOpacity
+                <TouchableOpacity 
                   style={styles.forgotButton}
                   onPress={() => router.push('/recuperacion')}
                 >
                   <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.submitButton}
-                  onPress={() => router.push('../(tabs)/home')}
+                <TouchableOpacity 
+                  style={[styles.submitButton, isLoading && { opacity: 0.7 }]}
+                  onPress={handleLogin} // <--- Conectamos la función
+                  disabled={isLoading}
                 >
-                  <Text style={styles.submitButtonText}>Continuar</Text>
+                  {isLoading ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <Text style={styles.submitButtonText}>Continuar</Text>
+                  )}
                 </TouchableOpacity>
+
                 <TouchableOpacity style={styles.registerButton}>
                   <Text style={styles.registerText}>
                     ¿Nuevo en la plataforma?{' '}
@@ -120,3 +155,27 @@ export default function LoginScreen() {
   );
 }
 
+const GlassContainer = ({ children, style }: any) => {
+  if (Platform.OS === 'web') {
+    return <View style={[styles.glassContainerWeb, style]}>{children}</View>;
+  } else {
+    return (
+      <View style={[styles.glassContainer, style]}>
+        <BlurView
+          intensity={Platform.OS === 'ios' ? 80 : 100}
+          tint="light"
+          experimentalBlurMethod="dimezisBlurView"
+          style={styles.glassEffect}
+        />
+        <View style={styles.glassColor} />
+        <LinearGradient
+          colors={['rgba(255, 255, 255, 0.5)', 'transparent']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.glassShine}
+        />
+        {children}
+      </View>
+    );
+  }
+};

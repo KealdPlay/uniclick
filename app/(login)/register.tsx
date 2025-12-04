@@ -1,10 +1,11 @@
-// app/register.tsx
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
@@ -16,6 +17,7 @@ import {
 } from 'react-native';
 
 import { styles } from '@/constants/loginStyle';
+import { api } from '@/services/api';
 
 export default function RegistroScreen() {
   const [formData, setFormData] = useState({
@@ -27,76 +29,75 @@ export default function RegistroScreen() {
     celular: '',
   });
 
+  const [isLoading, setIsLoading] = useState(false);
   const [showGeneroOptions, setShowGeneroOptions] = useState(false);
-
   const generoOptions = ['Masculino', 'Femenino', 'Otro', 'Prefiero no decir'];
 
-  const handleSubmit = () => {
-    console.log('Datos del formulario:', formData);
-    // Aquí iría la lógica de registro (validación, envío al backend, etc.)
-    router.push({
-      pathname: '/verificacionView',
-      params: { matricula: formData.matricula }
-    });
+  const handleSubmit = async () => {
+    // Validaciones básicas
+    if (!formData.nombre || !formData.matricula || !formData.contrasena) {
+      if (Platform.OS === 'web') {
+        window.alert("Campos incompletos: Por favor llena todos los campos obligatorios.");
+      } else {
+        Alert.alert("Campos incompletos", "Por favor llena al menos nombre, matrícula y contraseña.");
+      }
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const datosParaElBack = {
+        Nombre: formData.nombre,
+        Apellido: formData.apellidos, 
+        Matricula: formData.matricula,
+        Correo: `${formData.matricula}@utags.edu.mx`, 
+        Contrasena: formData.contrasena,
+        Telefono: formData.celular,
+        Genero: formData.genero,
+        Activo: true
+      };
+
+      const response = await api.usuarios.registrar(datosParaElBack);
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (Platform.OS === 'web') {
+          window.alert("¡Éxito! Tu cuenta ha sido creada correctamente.");
+        } else {
+          Alert.alert("¡Éxito!", "Tu cuenta ha sido creada correctamente.");
+        }
+        
+        // Navegar a verificación
+        router.push({
+          pathname: '/verificacionView',
+          params: { matricula: formData.matricula }
+        });
+
+      } else {
+        const errorData = await response.text();
+        if (Platform.OS === 'web') {
+          window.alert("No se pudo registrar. Es posible que la matrícula ya exista.");
+        } else {
+          Alert.alert("Error al registrar", "Es posible que la matrícula ya exista o hubo un error en el servidor.");
+        }
+      }
+
+    } catch (error) {
+      console.error(error);
+      if (Platform.OS === 'web') {
+        window.alert("Error de conexión. Revisa tu internet.");
+      } else {
+        Alert.alert("Error de conexión", "No pudimos conectar con el servidor. Revisa tu internet.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleBack = () => {
     router.push('/login');
-  };
-
-  // Componente Glass Container que funciona en web y nativo
-  const GlassContainer = ({ children, style }: any) => {
-    if (Platform.OS === 'web') {
-      // Para WEB: Usamos CSS backdrop-filter
-      return (
-        <View style={[styles.glassContainerWeb, style]}>
-          {children}
-        </View>
-      );
-    } else if (Platform.OS === 'ios') {
-      // Para iOS: Usamos BlurView nativo (funciona perfecto)
-      return (
-        <View style={[styles.glassContainer, style]}>
-          <BlurView
-            intensity={80}
-            tint="light"
-            style={styles.glassEffect}
-          />
-          <View style={styles.glassColor} />
-          <LinearGradient
-            colors={['rgba(255, 255, 255, 0.5)', 'transparent']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.glassShine}
-          />
-          {children}
-        </View>
-      );
-    } else {
-      // Para Android: Sin blur, efecto glassmorphism con gradientes y transparencia
-      return (
-        <View style={[styles.glassContainerAndroid, style]}>
-          <LinearGradient
-            colors={[
-              'rgba(255, 255, 255, 0.4)',
-              'rgba(255, 255, 255, 0.25)',
-              'rgba(255, 255, 255, 0.35)',
-            ]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.glassGradient}
-          />
-          <View style={styles.glassOverlay} />
-          <LinearGradient
-            colors={['rgba(255, 255, 255, 0.6)', 'transparent']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.glassShineAndroid}
-          />
-          {children}
-        </View>
-      );
-    }
   };
 
   return (
@@ -106,8 +107,7 @@ export default function RegistroScreen() {
         style={styles.backgroundImage}
         imageStyle={styles.backgroundImageStyle}
         blurRadius={Platform.OS === 'web' ? 0 : 3}>
-
-        {/* Botón de regreso */}
+        
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
           <Ionicons name="chevron-back" size={32} color="#fff" />
         </TouchableOpacity>
@@ -121,7 +121,6 @@ export default function RegistroScreen() {
             keyboardShouldPersistTaps="handled"
             bounces={false}>
 
-            {/* Glass Container con soporte web y nativo */}
             <GlassContainer>
               <View style={styles.glassContent}>
                 <Text style={styles.title}>Registro</Text>
@@ -147,6 +146,7 @@ export default function RegistroScreen() {
                   />
                 </View>
 
+                {/* SELECT DE GÉNERO */}
                 <View style={[styles.inputContainer, showGeneroOptions && styles.inputContainerActive]}>
                   <TouchableOpacity
                     style={styles.selectButton}
@@ -159,76 +159,19 @@ export default function RegistroScreen() {
 
                   {showGeneroOptions && (
                     <View style={styles.optionsWrapper}>
-                      {Platform.OS === 'web' ? (
-                        <View style={styles.optionsGlassContainerWeb}>
-                          <View style={styles.optionsContent}>
-                            {generoOptions.map((option, index) => (
-                              <TouchableOpacity
-                                key={option}
-                                style={[
-                                  styles.option,
-                                  index < generoOptions.length - 1 && styles.optionBorder
-                                ]}
-                                onPress={() => {
-                                  setFormData({ ...formData, genero: option });
-                                  setShowGeneroOptions(false);
-                                }}>
-                                <Text style={styles.optionText}>{option}</Text>
-                              </TouchableOpacity>
-                            ))}
-                          </View>
+                        <View style={styles.optionsContent}>
+                           {generoOptions.map((option, index) => (
+                             <TouchableOpacity
+                               key={option}
+                               style={[styles.option, index < generoOptions.length - 1 && styles.optionBorder]}
+                               onPress={() => {
+                                 setFormData({ ...formData, genero: option });
+                                 setShowGeneroOptions(false);
+                               }}>
+                               <Text style={styles.optionText}>{option}</Text>
+                             </TouchableOpacity>
+                           ))}
                         </View>
-                      ) : Platform.OS === 'ios' ? (
-                        <View style={styles.optionsGlassContainerIOS}>
-                          <BlurView
-                            intensity={95}
-                            tint="light"
-                            style={styles.optionsBlur}
-                          />
-                          <View style={styles.optionsContent}>
-                            {generoOptions.map((option, index) => (
-                              <TouchableOpacity
-                                key={option}
-                                style={[
-                                  styles.option,
-                                  index < generoOptions.length - 1 && styles.optionBorder
-                                ]}
-                                onPress={() => {
-                                  setFormData({ ...formData, genero: option });
-                                  setShowGeneroOptions(false);
-                                }}>
-                                <Text style={styles.optionText}>{option}</Text>
-                              </TouchableOpacity>
-                            ))}
-                          </View>
-                        </View>
-                      ) : (
-                        <View style={styles.optionsGlassContainerAndroid}>
-                          <LinearGradient
-                            colors={[
-                              'rgba(255, 255, 255, 0.75)',
-                              'rgba(245, 245, 245, 0.85)',
-                            ]}
-                            style={styles.optionsGradientAndroid}
-                          />
-                          <View style={styles.optionsContent}>
-                            {generoOptions.map((option, index) => (
-                              <TouchableOpacity
-                                key={option}
-                                style={[
-                                  styles.option,
-                                  index < generoOptions.length - 1 && styles.optionBorder
-                                ]}
-                                onPress={() => {
-                                  setFormData({ ...formData, genero: option });
-                                  setShowGeneroOptions(false);
-                                }}>
-                                <Text style={styles.optionText}>{option}</Text>
-                              </TouchableOpacity>
-                            ))}
-                          </View>
-                        </View>
-                      )}
                     </View>
                   )}
                 </View>
@@ -236,11 +179,11 @@ export default function RegistroScreen() {
                 <View style={styles.inputContainer}>
                   <TextInput
                     style={styles.input}
-                    placeholder="Matrícula (asignación de correo electrónico)"
+                    placeholder="Matrícula"
                     placeholderTextColor="#999"
                     value={formData.matricula}
                     onChangeText={(text) => setFormData({ ...formData, matricula: text })}
-                    keyboardType="email-address"
+                    keyboardType="default"
                     autoCapitalize="none"
                   />
                 </View>
@@ -267,9 +210,18 @@ export default function RegistroScreen() {
                   />
                 </View>
 
-                <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-                  <Text style={styles.submitButtonText}>Continuar</Text>
+                <TouchableOpacity 
+                    style={[styles.submitButton, isLoading && { opacity: 0.7 }]}
+                    onPress={handleSubmit}
+                    disabled={isLoading}
+                >
+                  {isLoading ? (
+                      <ActivityIndicator color="#fff" />
+                  ) : (
+                      <Text style={styles.submitButtonText}>Continuar</Text>
+                  )}
                 </TouchableOpacity>
+
               </View>
             </GlassContainer>
           </ScrollView>
@@ -279,3 +231,53 @@ export default function RegistroScreen() {
   );
 }
 
+const GlassContainer = ({ children, style }: any) => {
+  if (Platform.OS === 'web') {
+    return (
+      <View style={[styles.glassContainerWeb, style]}>
+        {children}
+      </View>
+    );
+  } else if (Platform.OS === 'ios') {
+    return (
+      <View style={[styles.glassContainer, style]}>
+        <BlurView 
+          intensity={80} 
+          tint="light"
+          style={styles.glassEffect}
+        />
+        <View style={styles.glassColor} />
+        <LinearGradient
+          colors={['rgba(255, 255, 255, 0.5)', 'transparent']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.glassShine}
+        />
+        {children}
+      </View>
+    );
+  } else {
+    return (
+      <View style={[styles.glassContainerAndroid, style]}>
+        <LinearGradient
+          colors={[
+            'rgba(255, 255, 255, 0.4)',
+            'rgba(255, 255, 255, 0.25)',
+            'rgba(255, 255, 255, 0.35)',
+          ]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.glassGradient}
+        />
+        <View style={styles.glassOverlay} />
+        <LinearGradient
+          colors={['rgba(255, 255, 255, 0.6)', 'transparent']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.glassShineAndroid}
+        />
+        {children}
+      </View>
+    );
+  }
+};

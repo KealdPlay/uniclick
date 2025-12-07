@@ -29,7 +29,7 @@ interface Product {
   author: string;
   price: number;
   description: string;
-  image: any; // En producción: string (URL)
+  image: any;
 }
 
 const ProductCard = ({ product, onPress }: { product: Product; onPress: () => void }) => (
@@ -228,8 +228,9 @@ export default function HomeScreen() {
   };
 
   const handleSettings = () => {
-    console.log('Ir a configuración');
     closeMenu();
+    // Navegación a la pantalla de perfil/configuración
+    router.push('/(tabs)/profile');
   };
 
   if (isLoading) {

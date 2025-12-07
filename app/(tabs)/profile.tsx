@@ -19,6 +19,7 @@ import {
 
 import { styles } from '@/constants/profileStyle';
 import { api } from '@/services/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface UserProfile {
     idUsuario: number;
@@ -59,11 +60,20 @@ export default function ProfileScreen() {
         try {
             setIsLoading(true);
 
-            // TODO: Obtener matrícula del usuario logueado desde AsyncStorage o Context
-            // Por ahora usamos la matrícula de ejemplo
-            const matricula = '240295'; // Cambiar por: await AsyncStorage.getItem('userMatricula');
+            // Obtener sesión de AsyncStorage
+            const sessionData = await AsyncStorage.getItem('userSession');
 
-            const usuario = await api.usuarios.obtenerPorMatricula(matricula);
+            if (!sessionData) {
+                // Si no hay sesión, redirigir al login (o manejar según lógica de app)
+                console.log('No hay sesión activa');
+                router.replace('/(login)/login');
+                return;
+            }
+
+            const sessionUser = JSON.parse(sessionData);
+            const idUsuario = sessionUser.idUsuario;
+
+            const usuario = await api.usuarios.obtenerPorId(idUsuario);
 
             if (usuario) {
                 setUserData({

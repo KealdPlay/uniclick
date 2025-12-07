@@ -9,6 +9,7 @@ import {
 
 
 
+
   Alert,
   ImageBackground,
   KeyboardAvoidingView,
@@ -22,6 +23,7 @@ import {
 
 import { styles } from '@/constants/loginStyle';
 import { api } from '@/services/api'; // Importamos el servicio de API
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen() {
   // Cambiamos 'email' por 'matricula' para ser consistentes con EL backend
@@ -44,17 +46,19 @@ export default function LoginScreen() {
 
     try {
       console.log("Intentando login con:", matricula);
-      
+
       // Llamamos a la api servicio de login
       const usuario = await api.usuarios.login(matricula, contrasena);
 
       if (usuario) {
         // LOGIN EXITOSO
         console.log("Login exitoso, bienvenido:", usuario.nombre);
-        
-        // Aquí podrías guardar el usuario en AsyncStorage si quisieras mantener sesión
+
+        // Guardar sesión en AsyncStorage
+        await AsyncStorage.setItem('userSession', JSON.stringify(usuario));
+
         // Por ahora, solo navegamos al Home
-        router.replace('/(tabs)/home'); 
+        router.replace('/(tabs)/home');
 
       } else {
         // LOGIN FALLIDO
@@ -99,7 +103,7 @@ export default function LoginScreen() {
                   <TextInput
                     style={styles.input}
                     // Ajustamos el placeholder para que sepan que es la matrícula
-                    placeholder="Matrícula (Ej. 000000)" 
+                    placeholder="Matrícula (Ej. 000000)"
                     placeholderTextColor="#999"
                     value={matricula}
                     onChangeText={setMatricula}
@@ -119,14 +123,14 @@ export default function LoginScreen() {
                   />
                 </View>
 
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.forgotButton}
                   onPress={() => router.push('/recuperacion')}
                 >
                   <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.submitButton, isLoading && { opacity: 0.7 }]}
                   onPress={handleLogin} // <--- Conectamos la función
                   disabled={isLoading}

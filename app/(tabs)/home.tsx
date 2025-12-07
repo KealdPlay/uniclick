@@ -1,5 +1,6 @@
 // app/(tabs)/home.tsx
 import { styles } from '@/constants/homeStyle';
+import { api } from '@/services/api';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -7,6 +8,7 @@ import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Animated,
   Dimensions,
   Image,
@@ -23,44 +25,125 @@ import {
 
 const { width } = Dimensions.get('window');
 
-interface Product {
-  id: number;
-  name: string;
-  author: string;
-  price: number;
-  description: string;
-  image: any;
+const additionalStyles = {
+  placeholderImage: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    backgroundColor: '#f0f0f0',
+  },
+  stockText: {
+    fontSize: 12,
+    color: '#34C759',
+    fontWeight: '600' as const,
+    marginTop: 8,
+  },
+  emptySubtext: {
+    marginTop: 8,
+    fontSize: 14,
+    color: '#999',
+    textAlign: 'center' as const,
+  },
+};
+
+interface Producto {
+  idProducto: number;
+  idVendedor: number;
+  nombreProducto: string;
+  descripcion: string | null;
+  precio: number;
+  cantidad: number | null;
+  turno: string | null;
+  incluyeEnvio: boolean | null;
+  salonVendedor: string | null;
+  telefonoContacto: string | null;
+  clabe: string | null;
+  imagenBase64: string | null;
+  categoria: string | null;
+  activo: boolean | null;
+  disponible: boolean | null;
+  fechaPublicacion: string | null;
+  fechaActualizacion: string | null;
+  idVendedorNavigation?: any;
 }
 
-const ProductCard = ({ product, onPress }: { product: Product; onPress: () => void }) => (
-  <TouchableOpacity
-    style={styles.productCard}
-    activeOpacity={0.7}
-    onPress={onPress}
-  >
-    <View style={styles.imageContainer}>
-      <Image
-        source={product.image}
-        style={styles.productImage}
-        resizeMode="contain"
-      />
-    </View>
+const ProductCard = ({ product, onPress }: { product: Producto; onPress: () => void }) => {
+  const getImageUri = (base64: string | null): string | null => {
+    if (!base64) return null;
 
-    <View style={styles.productInfo}>
-      <Text style={styles.productName}>{product.name}</Text>
-      <Text style={styles.productAuthor}>
-        Publicado por {product.author}
-      </Text>
-      <Text style={styles.productPrice}>${product.price}</Text>
-      <Text style={styles.productDescription} numberOfLines={3}>
-        {product.description}
-      </Text>
-    </View>
-  </TouchableOpacity>
-);
+    try {
+      const cleanBase64 = base64.replace(/\s/g, '');
+
+      if (cleanBase64.startsWith('data:image')) {
+        return cleanBase64;
+      }
+
+      let mimeType = 'image/jpeg';
+
+      if (cleanBase64.startsWith('/9j/')) {
+        mimeType = 'image/jpeg';
+      } else if (cleanBase64.startsWith('iVBORw0KGgo')) {
+        mimeType = 'image/png';
+      } else if (cleanBase64.startsWith('R0lGOD')) {
+        mimeType = 'image/gif';
+      } else if (cleanBase64.startsWith('UklGR')) {
+        mimeType = 'image/webp';
+      }
+
+      return `data:${mimeType};base64,${cleanBase64}`;
+    } catch (error) {
+      console.error('Error procesando imagen Base64:', error);
+      return null;
+    }
+  };
+
+  const imageUri = getImageUri(product.imagenBase64);
+
+  return (
+    <TouchableOpacity
+      style={styles.productCard}
+      activeOpacity={0.7}
+      onPress={onPress}
+    >
+      <View style={styles.imageContainer}>
+        {imageUri ? (
+          <Image
+            source={{ uri: imageUri }}
+            style={styles.productImage}
+            resizeMode="contain"
+            onError={(error) => {
+              console.error('Error cargando imagen:', error.nativeEvent.error);
+            }}
+          />
+        ) : (
+          <View style={styles.placeholderImage}>
+            <Ionicons name="image-outline" size={40} color="#ccc" />
+          </View>
+        )}
+      </View>
+
+      <View style={styles.productInfo}>
+        <Text style={styles.productName} numberOfLines={1}>
+          {product.nombreProducto}
+        </Text>
+        <Text style={styles.productAuthor} numberOfLines={1}>
+          {product.categoria || 'Sin categoría'}
+        </Text>
+        <Text style={styles.productPrice}>${product.precio.toFixed(2)}</Text>
+        <Text style={styles.productDescription} numberOfLines={3}>
+          {product.descripcion || 'Sin descripción disponible'}
+        </Text>
+        {product.cantidad !== null && product.cantidad > 0 && (
+          <Text style={styles.stockText}>Stock: {product.cantidad}</Text>
+        )}
+      </View>
+    </TouchableOpacity>
+  );
+};
 
 export default function HomeScreen() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Producto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -77,95 +160,35 @@ export default function HomeScreen() {
       }
       setError(null);
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('📦 Cargando productos desde la API...');
 
-      const mockProducts: Product[] = [
-        {
-          id: 1,
-          name: 'Chidas',
-          author: 'Miguel',
-          price: 16,
-          description: 'Lorem Ipsum dolor sit amet, consectetur adipisci tempor incidunt ut labore',
-          image: require('@/assets/images/chidas.png'),
-        },
-        {
-          id: 2,
-          name: 'Chidas',
-          author: 'Miguel',
-          price: 16,
-          description: 'Lorem Ipsum dolor sit amet, consectetur adipisci tempor incidunt ut labore',
-          image: require('@/assets/images/chidas.png'),
-        },
-        {
-          id: 3,
-          name: 'Chidas',
-          author: 'Miguel',
-          price: 16,
-          description: 'Lorem Ipsum dolor sit amet, consectetur adipisci tempor incidunt ut labore',
-          image: require('@/assets/images/chidas.png'),
-        },
-        {
-          id: 4,
-          name: 'Chidas',
-          author: 'Miguel',
-          price: 16,
-          description: 'Lorem Ipsum dolor sit amet, consectetur adipisci tempor incidunt ut labore',
-          image: require('@/assets/images/chidas.png'),
-        },
-        {
-          id: 5,
-          name: 'Chidas',
-          author: 'Miguel',
-          price: 16,
-          description: 'Lorem Ipsum dolor sit amet, consectetur adipisci tempor incidunt ut labore',
-          image: require('@/assets/images/chidas.png'),
-        },
-        {
-          id: 6,
-          name: 'Chidas',
-          author: 'Miguel',
-          price: 16,
-          description: 'Lorem Ipsum dolor sit amet, consectetur adipisci tempor incidunt ut labore',
-          image: require('@/assets/images/chidas.png'),
-        },
-        {
-          id: 7,
-          name: 'Chidas',
-          author: 'Miguel',
-          price: 16,
-          description: 'Lorem Ipsum dolor sit amet, consectetur adipisci tempor incidunt ut labore',
-          image: require('@/assets/images/chidas.png'),
-        },
-        {
-          id: 8,
-          name: 'Chidas',
-          author: 'Miguel',
-          price: 16,
-          description: 'Lorem Ipsum dolor sit amet, consectetur adipisci tempor incidunt ut labore',
-          image: require('@/assets/images/chidas.png'),
-        },
-        {
-          id: 9,
-          name: 'Chidas',
-          author: 'Miguel',
-          price: 16,
-          description: 'Lorem Ipsum dolor sit amet, consectetur adipisci tempor incidunt ut labore',
-          image: require('@/assets/images/chidas.png'),
-        },
-        {
-          id: 10,
-          name: 'Chidas',
-          author: 'Miguel',
-          price: 16,
-          description: 'Lorem Ipsum dolor sit amet, consectetur adipisci tempor incidunt ut labore',
-          image: require('@/assets/images/chidas.png'),
-        }
-      ];
+      const productos = await api.productos.obtenerTodos();
 
-      setProducts(mockProducts);
-    } catch (err) {
-      setError('Error al cargar productos. Intenta nuevamente.');
-      console.error('Error fetching products:', err);
+      console.log(`✅ ${productos.length} productos cargados`);
+
+      const productosActivos = productos.filter(
+        (p: Producto) => p.activo !== false && p.disponible !== false
+      );
+
+      console.log(`✅ ${productosActivos.length} productos activos y disponibles`);
+
+      setProducts(productosActivos);
+
+    } catch (err: any) {
+      const errorMessage = err.message || 'Error al cargar productos. Intenta nuevamente.';
+      setError(errorMessage);
+      console.error('❌ Error fetching products:', err);
+
+      if (!isRefresh) {
+        Alert.alert(
+          'Error',
+          'No se pudieron cargar los productos. Verifica tu conexión.',
+          [
+            { text: 'Reintentar', onPress: () => fetchProducts() },
+            { text: 'Cancelar', style: 'cancel' }
+          ]
+        );
+      }
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -178,7 +201,13 @@ export default function HomeScreen() {
 
   const handleProductPress = (productId: number) => {
     console.log('Producto seleccionado:', productId);
+    // TODO: Navegar a detalle del producto
     // router.push(`/producto/${productId}`);
+    Alert.alert(
+      'Producto seleccionado',
+      `ID: ${productId}`,
+      [{ text: 'OK' }]
+    );
   };
 
   const handleMenuPress = () => {
@@ -212,7 +241,6 @@ export default function HomeScreen() {
     ]).start(() => setIsMenuVisible(false));
   };
 
-  // ✅ NAVEGACIÓN A LA PANTALLA DE BÚSQUEDA
   const handleSearchPress = () => {
     console.log('Navegando a búsqueda...');
     router.push('/(tabs)/buscar');
@@ -230,7 +258,6 @@ export default function HomeScreen() {
 
   const handleSettings = () => {
     closeMenu();
-    // Navegación a la pantalla de perfil/configuración
     router.push('/(tabs)/profile');
   };
 
@@ -292,13 +319,16 @@ export default function HomeScreen() {
           <View style={styles.emptyContainer}>
             <Ionicons name="cart-outline" size={64} color="#ccc" />
             <Text style={styles.emptyText}>No hay productos disponibles</Text>
+            <Text style={styles.emptySubtext}>
+              Sé el primero en publicar un producto
+            </Text>
           </View>
         ) : (
           products.map((product) => (
             <ProductCard
-              key={product.id}
+              key={product.idProducto}
               product={product}
-              onPress={() => handleProductPress(product.id)}
+              onPress={() => handleProductPress(product.idProducto)}
             />
           ))
         )}

@@ -67,10 +67,18 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 10,
+        overflow: 'hidden',
     },
     productImage: {
         width: '100%',
         height: '100%',
+    },
+    placeholderImage: {
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#f0f0f0',
     },
     productInfo: {
         flex: 1,
@@ -97,6 +105,12 @@ export const styles = StyleSheet.create({
         fontSize: 14,
         color: '#666',
         lineHeight: 20,
+    },
+    stockText: {
+        fontSize: 12,
+        color: '#34C759',
+        fontWeight: '600',
+        marginTop: 8,
     },
     loadingText: {
         marginTop: 16,
@@ -130,6 +144,12 @@ export const styles = StyleSheet.create({
         marginTop: 16,
         fontSize: 16,
         color: '#999',
+    },
+    emptySubtext: {
+        marginTop: 8,
+        fontSize: 14,
+        color: '#999',
+        textAlign: 'center',
     },
 
     // Bottom Navigation (Glassmorphism)

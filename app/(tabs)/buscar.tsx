@@ -19,7 +19,6 @@ import {
 
 const { width } = Dimensions.get('window');
 
-// Interfaz que coincide con tu modelo Producto.cs
 interface Producto {
     idProducto: number;
     idVendedor: number;
@@ -47,41 +46,77 @@ const ProductCard = ({
 }: {
     product: Producto;
     onPress: () => void
-}) => (
-    <TouchableOpacity
-        style={styles.productCard}
-        activeOpacity={0.7}
-        onPress={onPress}
-    >
-        <View style={styles.imageContainer}>
-            {product.imagenBase64 ? (
-                <Image
-                    source={{ uri: `data:image/jpeg;base64,${product.imagenBase64}` }}
-                    style={styles.productImage}
-                    resizeMode="contain"
-                />
-            ) : (
-                <View style={styles.placeholderImage}>
-                    <Ionicons name="image-outline" size={40} color="#ccc" />
-                </View>
-            )}
-        </View>
+}) => {
+    const getImageUri = (base64: string | null): string | null => {
+        if (!base64) return null;
 
-        <View style={styles.productInfo}>
-            <Text style={styles.productName}>{product.nombreProducto}</Text>
-            <Text style={styles.productAuthor}>
-                {product.categoria || 'Sin categoría'}
-            </Text>
-            <Text style={styles.productPrice}>${product.precio.toFixed(2)}</Text>
-            <Text style={styles.productDescription} numberOfLines={3}>
-                {product.descripcion || 'Sin descripción disponible'}
-            </Text>
-            {product.cantidad !== null && product.cantidad > 0 && (
-                <Text style={styles.stockText}>Stock: {product.cantidad}</Text>
-            )}
-        </View>
-    </TouchableOpacity>
-);
+        try {
+            const cleanBase64 = base64.replace(/\s/g, '');
+
+            if (cleanBase64.startsWith('data:image')) {
+                return cleanBase64;
+            }
+
+            let mimeType = 'image/jpeg';
+
+            if (cleanBase64.startsWith('/9j/')) {
+                mimeType = 'image/jpeg';
+            } else if (cleanBase64.startsWith('iVBORw0KGgo')) {
+                mimeType = 'image/png';
+            } else if (cleanBase64.startsWith('R0lGOD')) {
+                mimeType = 'image/gif';
+            } else if (cleanBase64.startsWith('UklGR')) {
+                mimeType = 'image/webp';
+            }
+
+            return `data:${mimeType};base64,${cleanBase64}`;
+        } catch (error) {
+            console.error('Error procesando imagen Base64:', error);
+            return null;
+        }
+    };
+
+    const imageUri = getImageUri(product.imagenBase64);
+
+    return (
+        <TouchableOpacity
+            style={styles.productCard}
+            activeOpacity={0.7}
+            onPress={onPress}
+        >
+            <View style={styles.imageContainer}>
+                {imageUri ? (
+                    <Image
+                        source={{ uri: imageUri }}
+                        style={styles.productImage}
+                        resizeMode="contain"
+                        onError={(error) => {
+                            console.error('Error cargando imagen:', error.nativeEvent.error);
+                        }}
+                    />
+                ) : (
+                    <View style={styles.placeholderImage}>
+                        <Ionicons name="image-outline" size={40} color="#ccc" />
+                    </View>
+                )}
+            </View>
+
+            <View style={styles.productInfo}>
+                <Text style={styles.productName}>{product.nombreProducto}</Text>
+                <Text style={styles.productAuthor}>
+                    {product.categoria || 'Sin categoría'}
+                </Text>
+                <Text style={styles.productPrice}>${product.precio.toFixed(2)}</Text>
+                <Text style={styles.productDescription} numberOfLines={3}>
+                    {product.descripcion || 'Sin descripción disponible'}
+                </Text>
+                {product.cantidad !== null && product.cantidad > 0 && (
+                    <Text style={styles.stockText}>Stock: {product.cantidad}</Text>
+                )}
+            </View>
+        </TouchableOpacity>
+    );
+};
 
 export default function BuscarScreen() {
     const router = useRouter();
@@ -91,12 +126,10 @@ export default function BuscarScreen() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Carga productos desde la API
     useEffect(() => {
         fetchProducts();
     }, []);
 
-    // Filtra productos cuando cambia la búsqueda
     useEffect(() => {
         filterProducts();
     }, [searchQuery, allProducts]);
@@ -108,12 +141,10 @@ export default function BuscarScreen() {
 
             console.log('🔍 Cargando productos desde la API...');
 
-            // ✅ LLAMADA REAL A LA API
             const productos = await api.productos.obtenerTodos();
 
             console.log(`✅ ${productos.length} productos cargados`);
 
-            // Filtrar solo productos activos y disponibles
             const productosActivos = productos.filter(
                 (p: Producto) => p.activo !== false && p.disponible !== false
             );

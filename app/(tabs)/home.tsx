@@ -212,9 +212,10 @@ export default function HomeScreen() {
     ]).start(() => setIsMenuVisible(false));
   };
 
+  // ✅ NAVEGACIÓN A LA PANTALLA DE BÚSQUEDA
   const handleSearchPress = () => {
-    console.log('Abrir búsqueda');
-    // router.push('/buscar');
+    console.log('Navegando a búsqueda...');
+    router.push('/(tabs)/buscar');
   };
 
   const handleAddPress = () => {

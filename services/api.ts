@@ -1,59 +1,103 @@
 // URL del Backend en Azure
 const BASE_URL = 'https://uniclick-back-b2e7agdteab2hcam.eastus2-01.azurewebsites.net/api';
 
+// Función auxiliar para logging detallado
+const logRequest = (method: string, url: string, data?: any) => {
+  console.log('='.repeat(50));
+  console.log(`🌐 ${method} ${url}`);
+  if (data) console.log('📦 Body:', JSON.stringify(data, null, 2));
+  console.log('='.repeat(50));
+};
+
+const logResponse = (url: string, status: number, data?: any) => {
+  console.log('='.repeat(50));
+  console.log(`✅ Response from ${url}`);
+  console.log(`📊 Status: ${status}`);
+  if (data) console.log('📦 Data:', JSON.stringify(data, null, 2));
+  console.log('='.repeat(50));
+};
+
+const logError = (url: string, error: any) => {
+  console.error('='.repeat(50));
+  console.error(`❌ Error en ${url}`);
+  console.error('Tipo:', error.name);
+  console.error('Mensaje:', error.message);
+  if (error.response) {
+    console.error('Status:', error.response.status);
+    console.error('Data:', error.response.data);
+  }
+  console.error('='.repeat(50));
+};
+
 export const api = {
   usuarios: {
     // FUNCIÓN DE REGISTRO
     registrar: async (datosUsuario: any) => {
+      const url = `${BASE_URL}/Usuarios`;
       try {
-        console.log("📡 Enviando registro a:", `${BASE_URL}/Usuarios`);
-        const response = await fetch(`${BASE_URL}/Usuarios`, {
+        logRequest('POST', url, datosUsuario);
+
+        const response = await fetch(url, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(datosUsuario),
         });
-        return response;
+
+        const data = await response.json();
+        logResponse(url, response.status, data);
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Error en el registro');
+        }
+
+        return data;
       } catch (error) {
-        console.error("Error en el registro:", error);
+        logError(url, error);
         throw error;
       }
     },
 
     // FUNCIÓN DE LOGIN
     login: async (matricula: string, contrasena: string) => {
+      const url = `${BASE_URL}/Usuarios`;
       try {
-        // Bajamos la lista de usuarios para buscar
-        console.log("🔍 Buscando usuario...");
-        const response = await fetch(`${BASE_URL}/Usuarios`);
+        logRequest('GET', url);
+
+        const response = await fetch(url);
 
         if (!response.ok) {
           throw new Error("No se pudo conectar con el servidor");
         }
 
         const usuarios = await response.json();
+        logResponse(url, response.status, { count: usuarios.length });
 
-        // Buscamos si existe uno que coincida con matrícula Y contraseña
-        // Nota: idealmente esto se hace en el servidor
         const usuarioEncontrado = usuarios.find((u: any) =>
           u.matricula === matricula && u.contrasena === contrasena
         );
 
-        return usuarioEncontrado; // Si lo encuentra regresa el objeto, si no regresa undefined
+        if (!usuarioEncontrado) {
+          console.log('❌ Usuario no encontrado con esas credenciales');
+        } else {
+          console.log('✅ Usuario encontrado:', usuarioEncontrado.nombre);
+        }
 
+        return usuarioEncontrado;
       } catch (error) {
-        console.error("Error en el login:", error);
+        logError(url, error);
         throw error;
       }
     },
-    // ========================================
-    // NUEVO: FUNCIÓN PARA OBTENER USUARIO POR ID
-    // ========================================
+
+    // OBTENER USUARIO POR ID
     obtenerPorId: async (idUsuario: number) => {
+      const url = `${BASE_URL}/Usuarios/${idUsuario}`;
       try {
-        console.log("🔍 Obteniendo usuario por ID:", idUsuario);
-        const response = await fetch(`${BASE_URL}/Usuarios/${idUsuario}`, {
+        logRequest('GET', url);
+
+        const response = await fetch(url, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -66,62 +110,94 @@ export const api = {
         }
 
         const usuario = await response.json();
-        return usuario;
+        logResponse(url, response.status, usuario);
 
+        return usuario;
       } catch (error) {
-        console.error("Error al obtener usuario:", error);
+        logError(url, error);
         throw error;
       }
     },
 
-    // ========================================
-    // FUNCIÓN PARA ACTUALIZAR PERFIL
-    // ========================================
+    // ACTUALIZAR PERFIL - VOLVER A PUT TEMPORALMENTE
     actualizar: async (idUsuario: number, datosActualizados: any) => {
-      try {
-        console.log("📝 Actualizando usuario ID:", idUsuario);
+      const url = `${BASE_URL}/Usuarios/${idUsuario}`;
 
-        const response = await fetch(`${BASE_URL}/Usuarios/${idUsuario}`, {
+      // Asegurar que los nombres de propiedades estén correctos
+      const payload = {
+        Nombre: datosActualizados.Nombre || datosActualizados.nombre,
+        Apellido: datosActualizados.Apellido || datosActualizados.apellido,
+        Telefono: datosActualizados.Telefono || datosActualizados.telefono,
+        Genero: datosActualizados.Genero || datosActualizados.genero,
+        Clabe: datosActualizados.Clabe || datosActualizados.clabe,
+        FotoPerfil: datosActualizados.FotoPerfil || datosActualizados.fotoPerfil,
+      };
+
+      try {
+        logRequest('PUT', url, payload);
+
+        const response = await fetch(url, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
           },
-          body: JSON.stringify(datosActualizados),
+          body: JSON.stringify(payload),
         });
 
+        console.log(`📊 Response Status: ${response.status}`);
+        console.log(`📊 Response Status Text: ${response.statusText}`);
+
         if (!response.ok) {
-          const errorData = await response.json();
+          let errorData;
+          let errorText = '';
+
+          try {
+            errorText = await response.text();
+            console.log('📄 Response Text:', errorText);
+
+            try {
+              errorData = JSON.parse(errorText);
+            } catch {
+              errorData = { message: errorText || `Error ${response.status}` };
+            }
+          } catch {
+            errorData = { message: `Error ${response.status}: ${response.statusText}` };
+          }
+
           throw new Error(errorData.message || "Error al actualizar");
         }
 
-        return response;
-
+        const data = await response.json();
+        logResponse(url, response.status, data);
+        return data;
       } catch (error) {
-        console.error("Error al actualizar usuario:", error);
+        logError(url, error);
         throw error;
       }
     },
 
-    // ========================================
-    // NUEVO: FUNCIÓN PARA CAMBIAR CONTRASEÑA
-    // ========================================
+    // CAMBIAR CONTRASEÑA
     cambiarContrasena: async (
       idUsuario: number,
       contrasenaActual: string,
       contrasenaNueva: string
     ) => {
-      try {
-        console.log("🔐 Cambiando contraseña para usuario ID:", idUsuario);
+      const url = `${BASE_URL}/Usuarios/${idUsuario}/cambiar-contrasena`;
+      const body = {
+        ContrasenaActual: contrasenaActual,
+        ContrasenaNueva: contrasenaNueva,
+      };
 
-        const response = await fetch(`${BASE_URL}/Usuarios/${idUsuario}/cambiar-contrasena`, {
+      try {
+        logRequest('POST', url, body);
+
+        const response = await fetch(url, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            ContrasenaActual: contrasenaActual,
-            ContrasenaNueva: contrasenaNueva,
-          }),
+          body: JSON.stringify(body),
         });
 
         if (!response.ok) {
@@ -129,22 +205,23 @@ export const api = {
           throw new Error(errorData.message || "Error al cambiar contraseña");
         }
 
-        return await response.json();
+        const data = await response.json();
+        logResponse(url, response.status, data);
 
+        return data;
       } catch (error) {
-        console.error("Error al cambiar contraseña:", error);
+        logError(url, error);
         throw error;
       }
     },
 
-    // ========================================
-    // FUNCIÓN PARA SUBIR FOTO DE PERFIL
-    // ========================================
+    // ACTUALIZAR FOTO DE PERFIL
     actualizarFotoPerfil: async (idUsuario: number, fotoBase64: string) => {
+      const url = `${BASE_URL}/Usuarios/${idUsuario}`;
       try {
-        console.log("📸 Actualizando foto de perfil para usuario ID:", idUsuario);
+        logRequest('PUT', url, { FotoPerfil: 'base64...' });
 
-        const response = await fetch(`${BASE_URL}/Usuarios/${idUsuario}`, {
+        const response = await fetch(url, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -158,23 +235,23 @@ export const api = {
           throw new Error("Error al actualizar foto");
         }
 
-        return response;
-
+        logResponse(url, response.status);
+        return { success: true };
       } catch (error) {
-        console.error("Error al actualizar foto:", error);
+        logError(url, error);
         throw error;
       }
     },
   },
-  // ========================================
+
   // SERVICIOS DE PRODUCTOS
-  // ========================================
   productos: {
-    // Obtener todos los productos
     obtenerTodos: async () => {
+      const url = `${BASE_URL}/Productos`;
       try {
-        console.log("📦 Obteniendo todos los productos...");
-        const response = await fetch(`${BASE_URL}/Productos`, {
+        logRequest('GET', url);
+
+        const response = await fetch(url, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -186,19 +263,21 @@ export const api = {
         }
 
         const productos = await response.json();
-        return productos;
+        logResponse(url, response.status, { count: productos.length });
 
+        return productos;
       } catch (error) {
-        console.error("Error al obtener productos:", error);
+        logError(url, error);
         throw error;
       }
     },
 
-    // Obtener producto por ID
     obtenerPorId: async (idProducto: number) => {
+      const url = `${BASE_URL}/Productos/${idProducto}`;
       try {
-        console.log("🔍 Obteniendo producto ID:", idProducto);
-        const response = await fetch(`${BASE_URL}/Productos/${idProducto}`, {
+        logRequest('GET', url);
+
+        const response = await fetch(url, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -210,19 +289,21 @@ export const api = {
         }
 
         const producto = await response.json();
-        return producto;
+        logResponse(url, response.status, producto);
 
+        return producto;
       } catch (error) {
-        console.error("Error al obtener producto:", error);
+        logError(url, error);
         throw error;
       }
     },
 
-    // Crear nuevo producto
     crear: async (datosProducto: any) => {
+      const url = `${BASE_URL}/Productos`;
       try {
-        console.log("➕ Creando nuevo producto...");
-        const response = await fetch(`${BASE_URL}/Productos`, {
+        logRequest('POST', url, datosProducto);
+
+        const response = await fetch(url, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -235,19 +316,22 @@ export const api = {
           throw new Error(errorData.message || "Error al crear producto");
         }
 
-        return await response.json();
+        const data = await response.json();
+        logResponse(url, response.status, data);
 
+        return data;
       } catch (error) {
-        console.error("Error al crear producto:", error);
+        logError(url, error);
         throw error;
       }
     },
 
-    // Actualizar producto
     actualizar: async (idProducto: number, datosActualizados: any) => {
+      const url = `${BASE_URL}/Productos/${idProducto}`;
       try {
-        console.log("📝 Actualizando producto ID:", idProducto);
-        const response = await fetch(`${BASE_URL}/Productos/${idProducto}`, {
+        logRequest('PUT', url, datosActualizados);
+
+        const response = await fetch(url, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -259,19 +343,20 @@ export const api = {
           throw new Error("Error al actualizar producto");
         }
 
-        return response;
-
+        logResponse(url, response.status);
+        return { success: true };
       } catch (error) {
-        console.error("Error al actualizar producto:", error);
+        logError(url, error);
         throw error;
       }
     },
 
-    // Eliminar producto
     eliminar: async (idProducto: number) => {
+      const url = `${BASE_URL}/Productos/${idProducto}`;
       try {
-        console.log("🗑️ Eliminando producto ID:", idProducto);
-        const response = await fetch(`${BASE_URL}/Productos/${idProducto}`, {
+        logRequest('DELETE', url);
+
+        const response = await fetch(url, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -282,18 +367,17 @@ export const api = {
           throw new Error("Error al eliminar producto");
         }
 
-        return response;
-
+        logResponse(url, response.status);
+        return { success: true };
       } catch (error) {
-        console.error("Error al eliminar producto:", error);
+        logError(url, error);
         throw error;
       }
     },
 
-    // Buscar productos (filtrado del lado del cliente)
     buscar: async (query: string) => {
       try {
-        console.log("🔎 Buscando productos:", query);
+        console.log('🔎 Buscando productos:', query);
         const productos = await api.productos.obtenerTodos();
 
         if (!query.trim()) {
@@ -301,14 +385,16 @@ export const api = {
         }
 
         const queryLower = query.toLowerCase();
-        return productos.filter((p: any) =>
+        const resultados = productos.filter((p: any) =>
           p.nombreProducto?.toLowerCase().includes(queryLower) ||
           p.descripcion?.toLowerCase().includes(queryLower) ||
           p.categoria?.toLowerCase().includes(queryLower)
         );
 
+        console.log(`✅ ${resultados.length} productos encontrados`);
+        return resultados;
       } catch (error) {
-        console.error("Error en búsqueda:", error);
+        console.error('❌ Error en búsqueda:', error);
         throw error;
       }
     },
